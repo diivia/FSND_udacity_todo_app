@@ -11,17 +11,13 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 class Todo(db.Model):
-    __tablename__ = ' '
-
+    __tablename__ = 'todos'
     id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String, nullable=False)
+    description = db.Column(db.String(), nullable=False)
+    completed = db.Column(db.Boolean, nullable=False)
 
     def __repr__(self):
         return f'<ID: {self.id}, Description: {self.description}>'
-
-
-#db.create_all()
-
 
 @app.route('/todos/create', methods=['POST'])
 def create_todo():
@@ -32,7 +28,6 @@ def create_todo():
         todo = Todo(description=description)
         db.session.add(todo)
         db.session.commit()
-        print(todo.description)
         body['description']=todo.description
     except:
         error = True
