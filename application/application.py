@@ -21,6 +21,18 @@ class Todo(db.Model):
         return f'<ID: {self.id}, Description: {self.description}>'
 
 
+@app.route('/todos/<todo_id>', methods=['DELETE'])
+def delete_todo(todo_id):
+    try:
+        Todo.query.filter_by(id=todo_id).delete()
+        db.session.commit()
+    except:
+        db.session.rollback()
+    finally:
+        db.session.close()
+    return jsonify({'success': True})
+
+
 @app.route('/todos/<todo_id>/set-completed', methods=['POST'])
 def set_completed_todo(todo_id):
     try:
@@ -37,13 +49,15 @@ def set_completed_todo(todo_id):
 
 @app.route('/todos/create', methods=['POST'])
 def create_todo():
-    body = {}
     error = False
+    body = {}
     try:
         description = request.get_json()['description']
-        todo = Todo(description=description)
+        todo = Todo(description=description, completed=False)
         db.session.add(todo)
         db.session.commit()
+        body['id'] = todo.id
+        body['completed'] = todo.completed
         body['description'] = todo.description
     except:
         error = True
