@@ -28,24 +28,45 @@
             cursor: pointer;
             font-size: 20px;
         }
+
+        .lists-wrapper, .todos-wrapper {
+            display: inline-block;
+            vertical-align: top;
+        }
     </style>
 </head>
 <body>
-<form id='form'>
-    <input id='description' type="text" name="description"/>
-    <input type="submit" value="Create"/>
-</form>
-<div id="error" class="hidden">Something went wrong!</div>
-<ul id='todos'>
-    {% for d in data %}
-    <li>
-        <input class="check-completed" id='completed' data-id="{{d.id}}" type="checkbox" {% if d.completed %} checked {%
-               endif %}/>
-        {{d.description}}
-        <button class="delete-button" data-id="{{ d.id }}">&cross;</button>
-    </li>
-    {% endfor %}
-</ul>
+<div class="lists-wrapper">
+    <ul id="lists">
+        {% for list in lists %}
+        <li>
+            <input class="check-list-completed" id='list_completed' data-id="{{list.id}}" type="checkbox" {% if list.completed %}
+                   checked {% endif %}/>
+            <a href="/lists/{{list.id}}">{{list.name}}</a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div class="todos-wrapper">
+    <h4>{{active_list.name}}</h4>
+    <form id='form'>
+        <input id='description' type="text" name="description"/>
+        <input type="submit" value="Create"/>
+    </form>
+    <div id="error" class="hidden">Something went wrong!</div>
+    <ul id='todos'>
+        {% for todo in todos %}
+        <li>
+            <input class="check-completed" id='completed' data-id="{{todo.id}}" type="checkbox" {% if todo.completed %}
+                   checked {%
+                   endif %}/>
+            {{todo.description}}
+            <button class="delete-button" data-id="{{ todo.id }}">&cross;</button>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
 
 <script>
     const deleteBtns = document.querySelectorAll('.delete-button');
@@ -62,6 +83,31 @@
                 })
         }
     }
+    // const listCheckboxes = document.querySelectorAll(".check-list-completed");
+    // for (let i=0; i<listCheckboxes.length; i++){
+    //     const chackbox = listCheckboxes[i];
+    //     chackbox.onchange = function(e) {
+    //         console.log('event', e);
+    //         const newCompleted = e.target.checked;
+    //         const listId = e.target.dataset['id'];
+    //         fetch('/todos/' + todoId + '/set-completed', {
+    //             method: 'POST',
+    //             body: JSON.stringify({
+    //                 'completed': newCompleted
+    //             }),
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             }
+    //         })
+    //             .then(function (jsonResponse) {
+    //                 document.getElementById('error').className = 'hidden';
+    //             })
+    //             .catch(function () {
+    //                 document.getElementById('error').className = '';
+    //             });
+    //     }
+    //
+    // }
 
     const checkboxes = document.querySelectorAll(".check-completed");
     for (let i = 0; i < checkboxes.length; i++) {
@@ -96,12 +142,20 @@
             method: 'POST',
             body: JSON.stringify({
                 'description': desc,
-            }),
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-            .then(response => response.json())
+                'list_id': {
+        {
+            active_list.id
+        }
+    }
+    }),
+        headers: {
+            'Content-Type'
+        :
+            'application/json',
+        }
+    })
+    .
+        then(response => response.json())
             .then(jsonResponse => {
                 const li = document.createElement('li');
                 const checkbox = document.createElement('input');

@@ -22,7 +22,7 @@ class Todo(db.Model):
     __tablename__ = 'todos'
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(), nullable=False)
-    completed = db.Column(db.Boolean, nullable=False)
+    completed = db.Column(db.Boolean, nullable=False, default=False)
     list_id = db.Column(db.Integer, db.ForeignKey('todolists.id'), nullable=False)
 
     def __repr__(self):
@@ -61,12 +61,14 @@ def create_todo():
     body = {}
     try:
         description = request.get_json()['description']
-        todo = Todo(description=description, completed=False)
+        list_id = request.get_json()['list_id']
+        todo = Todo(description=description, completed=False, list_id=list_id)
         db.session.add(todo)
         db.session.commit()
         body['id'] = todo.id
         body['completed'] = todo.completed
         body['description'] = todo.description
+        body['list_id'] = todo.list_id
     except:
         error = True
         db.session.rollback()
@@ -79,6 +81,11 @@ def create_todo():
         return jsonify(body)
 
 
+@app.route('/lists/<list_id>')
+def get_list_todos(list_id):
+    return render_template('index.html', active_list=TodoList.query.get(list_id), lists=TodoList.query.all(), todos=Todo.query.filter_by(list_id=list_id).order_by('id').all())
+
+
 @app.route('/')
 def index():
-    return render_template('index.html', data=Todo.query.order_by('id').all())
+    return redirect(url_for('get_list_todos', list_id=1))
